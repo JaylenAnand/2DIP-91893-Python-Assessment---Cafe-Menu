@@ -1,7 +1,9 @@
-#Version 3: Basic GUI Cafe Menu
+#Version 3: GUI Cafe Menu
 #27/04/23
 
 import tkinter as tk
+
+root = tk.Tk()
 
 #Define menu items and prices
 menu_items = {"Coffee": 2.50, "Tea": 1.50, "Sandwich": 3.00, "Muffin": 2.00, "Salad": 4.00}
@@ -40,9 +42,10 @@ def handle_order():
 
 #Define function to handle "Login" button click
 def handle_login():
-    username = username_entry.get()
-    password = password_entry.get()
+    username = login_username_entry.get()
+    password = login_password_entry.get()
     if username in users and users[username] == password:
+        login_username_entry.focus_set()
         #Switch to Order frame
         login_frame.pack_forget()
         order_frame.pack()
@@ -52,37 +55,22 @@ def handle_login():
 
 #Define function to handle "Create Account" button click
 def handle_create_account():
-    username = username_entry.get()
-    password = password_entry.get()
+    username = create_username_entry.get()
+    password = create_password_entry.get()
     age = age_entry.get()
     if int(age) >= 13 and int(age) <= 18:
         users[username] = password
+        create_username_entry.focus_set()
         #Switch to Order frame
         login_frame.pack_forget()
+        create_account_frame.pack_forget()
         order_frame.pack()
     else:
         #Show error message
         error_label.config(text="You must be between 13 and 18 years old")
 
-#Create main window
-root = tk.Tk()
-root.title("Café Menu")
-
-#Create Introduction frame
-intro_frame = tk.Frame(root)
-intro_frame.pack()
-
-#Create Introduction label
-intro_label = tk.Label(intro_frame, text="Welcome to the School Café Click and Collect App!", font=("Arial", 16))
-intro_label.pack(pady=20)
-
-#Create "Log In" button
-login_button = tk.Button(intro_frame, text="Log In", font=("Arial", 12), command=lambda:[intro_frame.pack_forget(), login_frame.pack()])
-login_button.pack(pady=10)
-
-#Create "Create Account" button
-create_account_button = tk.Button(intro_frame, text="Create Account", font=("Arial", 12), command=lambda:[intro_frame.pack_forget(), create_account_frame.pack()])
-create_account_button.pack()
+#Define users dictionary
+users = {}
 
 #Create Login frame
 login_frame = tk.Frame(root)
@@ -91,59 +79,109 @@ login_frame = tk.Frame(root)
 username_label = tk.Label(login_frame, text="Username:", font=("Arial", 12))
 username_label.pack()
 
+#Create entry for username
+login_username_entry = tk.Entry(login_frame, font=("Arial", 12))
+login_username_entry.pack()
+
+#Create label for password
+password_label = tk.Label(login_frame, text="Password:", font=("Arial", 12))
+password_label.pack()
+
+#Create entry for password
+login_password_entry = tk.Entry(login_frame, font=("Arial", 12), show="*")
+login_password_entry.pack()
+
+#Create button for Login frame
+login_button = tk.Button(login_frame, text="Login", font=("Arial", 12), command=handle_login)
+login_button.pack(pady=10)
+
+#Create label for error messages
+error_label = tk.Label(login_frame, text="", font=("Arial", 12), fg="red")
+error_label.pack(pady=5)
+
+#Create Intro frame
+intro_frame = tk.Frame(root)
+
+#Add Login and Create Account buttons to intro frame
+login_button = tk.Button(intro_frame, text="Login", font=("Arial", 12), command=lambda: intro_frame.pack_forget() or login_frame.pack())
+login_button.pack(pady=10)
+
+create_account_button = tk.Button(intro_frame, text="Create Account", font=("Arial", 12), command=lambda: intro_frame.pack_forget() or create_account_frame.pack())
+create_account_button.pack(pady=10)
+
+#Create Create Account frame
+create_account_frame = tk.Frame(root)
+
+#Create label for username
+create_username_label = tk.Label(create_account_frame, text="Username:", font=("Arial", 12))
+create_username_label.pack()
+
+#Create entry for username
+create_username_entry = tk.Entry(create_account_frame, font=("Arial", 12))
+create_username_entry.pack()
+
+#Create label for password
+create_password_label = tk.Label(create_account_frame, text="Password:", font=("Arial", 12))
+create_password_label.pack()
+
+#Create entry for password
+create_password_entry = tk.Entry(create_account_frame, font=("Arial", 12), show="*")
+create_password_entry.pack()
+
+#Create label for age
+age_label = tk.Label(create_account_frame, text="Age:", font=("Arial", 12))
+age_label.pack()
+
+#Create entry for age
+age_entry = tk.Entry(create_account_frame, font=("Arial", 12))
+age_entry.pack()
+
+#Create button for Create Account frame
+create_account_button = tk.Button(create_account_frame, text="Create Account", font=("Arial", 12), command=handle_create_account)
+create_account_button.pack(pady=10)
+
 #Create Order frame
 order_frame = tk.Frame(root)
 
-#Create label for menu
-menu_label = tk.Label(order_frame, text="Menu", font=("Arial", 16, "underline"))
-menu_label.pack()
-
 #Create listbox for menu items
-listbox = tk.Listbox(order_frame, font=("Arial", 12), selectmode="multiple")
+listbox = tk.Listbox(order_frame, selectmode="multiple", font=("Arial", 12))
 for item in menu_items:
-listbox.insert("end", item)
-listbox.pack()
+    listbox.insert("end", item)
+listbox.pack(side="left")
 
-#Create label and entry for quantities
-quantity_label = tk.Label(order_frame, text="Quantity", font=("Arial", 12))
-quantity_label.pack()
+#Create scrollbar for listbox
+scrollbar = tk.Scrollbar(order_frame, orient="vertical")
+scrollbar.config(command=listbox.yview)
+scrollbar.pack(side="left", fill="y")
+
+#Create frame for quantities and labels
+quantities_frame = tk.Frame(order_frame)
+quantities_frame.pack(side="left")
+
+#Create list of quantity variables
 quantities = []
 for item in menu_items:
-quantity_entry = tk.Entry(order_frame, font=("Arial", 12), width=5)
-quantity_entry.insert("end", "0")
-quantity_entry.pack()
-quantities.append(quantity_entry)
+    quantity = tk.StringVar()
+    quantity.set("0")
+    quantities.append(quantity)
 
-#Create "Order" button
+#Create labels and entries for quantities
+for i in range(len(menu_items)):
+    label = tk.Label(quantities_frame, text=menu_items[listbox.get(i)], font=("Arial", 12))
+    label.pack()
+    entry = tk.Entry(quantities_frame, textvariable=quantities[i], font=("Arial", 12), width=5)
+    entry.pack()
+
+#Create button to calculate order total
 order_button = tk.Button(order_frame, text="Order", font=("Arial", 12), command=handle_order)
-order_button.pack()
+order_button.pack(pady=10)
 
-#Create text widget for order details
-order_text = tk.Text(order_frame, font=("Arial", 12), state="disabled")
+#Create text widget to display order details
+order_text = tk.Text(order_frame, font=("Arial", 12), state="disabled", width=40, height=10)
 order_text.pack()
 
-#Create label for error message
-error_label = tk.Label(root, text="", font=("Arial", 12), fg="red")
-error_label.pack()
+#Pack intro frame
+intro_frame.pack(pady=50)
 
-#Define dictionary to store usernames and passwords
-users = {"Alice": "1234", "Bob": "5678"}
-
-#Create Introduction frame
-intro_frame = tk.Frame(root)
-intro_frame.pack()
-
-#Create label for introduction message
-intro_label = tk.Label(intro_frame, text="Welcome to Café Menu App", font=("Arial", 16))
-intro_label.pack()
-
-#Create "Login" button in Introduction frame
-login_button = tk.Button(intro_frame, text="Login", font=("Arial", 12), command=lambda: intro_frame.pack_forget() or login_frame.pack())
-login_button.pack()
-
-#Create "Create Account" button in Introduction frame
-create_account_button = tk.Button(intro_frame, text="Create Account", font=("Arial", 12), command=lambda: intro_frame.pack_forget() or login_frame.pack())
-create_account_button.pack()
-
-#run mainloop
+#Run mainloop
 root.mainloop()
