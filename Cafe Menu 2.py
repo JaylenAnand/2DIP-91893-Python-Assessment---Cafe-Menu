@@ -1,8 +1,8 @@
 #Version 2: Cafe Menu with Improved Functionality
 #20/04/23
 
-#Welcome to the Café Menu app
-print("Welcome to the Café Menu app for students aged 13-18.")
+#Welcome to the Cafe Menu app
+print("Welcome to the Cafe Menu app")
 
 #List of existing users with usernames and passwords
 users = [("jane_doe", "password123"), ("john_smith", "qwerty456")]
