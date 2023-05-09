@@ -1,163 +1,119 @@
-#Version 3: GUI Cafe Menu
+#Version 3: Basic GUI Cafe Menu
 #27/04/23
 
 import tkinter as tk
 
-# Define menu items and prices
-menu_items = {"Coffee": 2.50, "Tea": 1.50, "Sandwich": 3.00, "Muffin": 2.00, "Salad": 4.00}
+#Define menu items and prices
+menu = {"Coffee": 2.50, "Tea": 1.50, "Sandwich": 3.00, "Muffin": 2.00, "Salad": 4.00}
 
-# Define function to calculate order total
-def calculate_total(order):
-    total = 0
-    for item in order:
-        total += menu_items[item] * order[item]
-    return total
-
-# Define function to print order details
-def print_order(order, menu_items, total):
-    order_str = ""
-    for item in order:
-        order_str += f"{item}: {order[item]} x ${menu_items[item]:.2f} = ${menu_items[item] * order[item]:.2f}\n"
-    order_str += f"\nTotal: ${total:.2f}"
-    return order_str
-
-# Define function to handle "Order" button click
-def handle_order():
-    # Get selected items and quantities from listbox
-    selections = listbox.curselection()
-    order = {}
-    for i in selections:
-        item = listbox.get(i)
-        quantity = int(quantities[i].get())
-        order[item] = quantity
-    # Calculate order total and display order details
-    total = calculate_total(order)
-    order_str = print_order(order, menu_items, total)
-    order_text.config(state="normal")
-    order_text.delete("1.0", "end")
-    order_text.insert("end", order_str)
-    order_text.config(state="disabled")
-
-# Define function to handle "Login" button click
-def handle_login():
-    username = login_username_entry.get()
-    password = login_password_entry.get()
-    if username in users and users[username] == password:
-        login_username_entry.focus_set()
-        # Switch to Order frame
-        login_frame.grid_forget()
-        order_frame.grid()
-    else:
-        # Show error message
-        error_label.config(text="Invalid username or password")
-
-# Define function to handle "Create Account" button click
-def handle_create_account():
+#Define functions for login, account creation, and order placement
+def create_account():
     username = create_username_entry.get()
     password = create_password_entry.get()
-    age = age_entry.get()
-    if int(age) >= 13 and int(age) <= 18:
-        users[username] = password
-        create_username_entry.focus_set()
-        # Switch to Order frame
-        login_frame.grid_forget()
-        create_account_frame.grid_forget()
-        order_frame.grid()
+    age = create_age_entry.get()
+    if username in users:
+        create_error_label.config(text="Username already exists")
+    elif not age.isnumeric():
+        create_error_label.config(text="Please enter a valid age")
+    elif int(age) > 18:
+        create_error_label.config(text="You are too old")
+    elif int(age) < 13:
+        create_error_label.config(text="You are too young")
     else:
-        # Show error message
-        error_label.config(text="You must be between 13 and 18 years old")
+        users[username] = {"password": password, "age": age}
+        create_success_label.config(text="Account created successfully")
+        create_account_frame.pack_forget()
+        login_frame.pack()
 
-# Define users dictionary
-users = {}
+def login():
+    username = username_entry.get()
+    password = password_entry.get()
+    if username not in users:
+        error_label.config(text="Username not found")
+    elif users[username]["password"] != password:
+        error_label.config(text="Incorrect password")
+    else:
+        login_frame.pack_forget()
+        menu_frame.pack()
 
-# Create root window
+def place_order():
+    order = []
+    for item, price in menu.items():
+        if item in var_dict and var_dict[item].get() > 0:
+            order.append(f"{item}: {var_dict[item].get()} x ${price:.2f}")
+    if order:
+        order_label.config(text="\n".join(order))
+        total_label.config(text=f"Total: ${sum([menu[item]*var_dict[item].get() for item in var_dict])}")
+    else:
+        error_label.config(text="Please select at least one item")
+
+#Create root window
 root = tk.Tk()
-root.title("Cafe Menu App")
+root.geometry("400x400")
+root.title("Café Menu App")
 
-# Create Login frame
+#Create intro and login frame
+users = {"user": {"password": "pass", "age": "25"}}
 login_frame = tk.Frame(root)
-login_frame.grid(row=0, column=0, pady=20)
+login_label = tk.Label(login_frame, text="Welcome to the Café Menu app!\nPlease log in to continue:")
+username_label = tk.Label(login_frame, text="Username:")
+username_entry = tk.Entry(login_frame)
+password_label = tk.Label(login_frame, text="Password:")
+password_entry = tk.Entry(login_frame, show="*")
+login_button = tk.Button(login_frame, text="Log In", command=login)
+error_label = tk.Label(login_frame, text="")
+create_account_button = tk.Button(login_frame, text="Create Account", command=lambda: [login_frame.pack_forget(), create_account_frame.pack()])
+login_label.pack(pady=20)
+username_label.pack()
+username_entry.pack()
+password_label.pack()
+password_entry.pack()
+login_button.pack(pady=10)
+error_label.pack()
+create_account_button.pack(pady=10)
 
-# Add widgets to Login frame
-username_label = tk.Label(login_frame, text="Username:", font=("Arial", 12))
-username_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-login_username_entry = tk.Entry(login_frame, font=("Arial", 12))
-login_username_entry.grid(row=0, column=1, padx=10, pady=10)
-password_label = tk.Label(login_frame, text="Password:", font=("Arial", 12))
-password_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-login_password_entry = tk.Entry(login_frame, font=("Arial", 12), show="*")
-login_password_entry.grid(row=1, column=1, padx=10, pady=10)
-login_button = tk.Button(login_frame, text="Login", font=("Arial", 12), command=handle_login)
-login_button.grid(row=2, column=0, columnspan=2, pady=20)
-error_label = tk.Label(login_frame, text="", font=("Arial", 12), fg="red")
-error_label.grid(row=3, column=0, columnspan=2)
-
-# Create Intro frame
-intro_frame = tk.Frame(root)
-
-# Add widgets to Intro frame
-intro_label = tk.Label(intro_frame, text="Welcome to the Cafe Menu App", font=("Arial", 20))
-intro_label.grid(row=0, column=0, padx=10, pady=10)
-login_button = tk.Button(intro_frame, text="Login", font=("Arial", 12), command=lambda: intro_frame.grid_forget() or login_frame.grid())
-login_button.grid(row=1, column=0, padx=10, pady=10)
-create_account_button = tk.Button(intro_frame, text="Create Account", font=("Arial", 12), command=lambda: intro_frame.grid_forget() or create_account_frame.grid())
-create_account_button.grid(row=2, column=0, padx=10, pady=10)
-
-# Create Create Account frame
+#Create create account frame
 create_account_frame = tk.Frame(root)
+create_username_label = tk.Label(create_account_frame, text="Username:")
+create_username_entry = tk.Entry(create_account_frame)
+create_password_label = tk.Label(create_account_frame, text="Password:")
+create_password_entry = tk.Entry(create_account_frame, show="*")
+create_age_label = tk.Label(create_account_frame, text="Age:")
+create_age_entry = tk.Entry(create_account_frame)
+create_button = tk.Button(create_account_frame, text="Create Account", command=create_account)
+create_error_label = tk.Label(create_account_frame, text="")
+create_success_label = tk.Label(create_account_frame, text="")
+create_username_label.pack()
+create_username_entry.pack()
+create_password_label.pack()
+create_password_entry.pack()
+create_age_label.pack()
+create_age_entry.pack()
+create_button.pack(pady=10)
+create_error_label.pack()
+create_success_label.pack()
+create_back_button = tk.Button(create_account_frame, text="Back", command=lambda: [create_account_frame.pack_forget(), login_frame.pack()])
+create_back_button.pack()
 
-# Add widgets to Create Account frame
-create_username_label = tk.Label(create_account_frame, text="Username:", font=("Arial", 12))
-create_username_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-create_username_entry = tk.Entry(create_account_frame, font=("Arial", 12))
-create_username_entry.grid(row=0, column=1, padx=10, pady=10)
-create_password_label = tk.Label(create_account_frame, text="Password:", font=("Arial", 12))
-create_password_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-create_password_entry = tk.Entry(create_account_frame, font=("Arial", 12), show="*")
-create_password_entry.grid(row=1, column=1, padx=10, pady=10)
-age_label = tk.Label(create_account_frame, text="Age:", font=("Arial", 12))
-age_label.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-age_entry = tk.Entry(create_account_frame, font=("Arial", 12))
-age_entry.grid(row=2, column=1, padx=10, pady=10)
-create_account_button = tk.Button(create_account_frame, text="Create Account", font=("Arial", 12), command=handle_create_account)
-create_account_button.grid(row=3, column=0, columnspan=2, pady=20)
-error_label = tk.Label(create_account_frame, text="", font=("Arial", 12), fg="red")
-error_label.grid(row=4, column=0, columnspan=2)
+#Create menu frame
+var_dict = {}
+menu_frame = tk.Frame(root)
+menu_label = tk.Label(menu_frame, text="Please select your items:")
+for item, price in menu.items():
+    var_dict[item] = tk.IntVar()
+    item_checkbutton = tk.Checkbutton(menu_frame, text=f"{item} (${price:.2f})", variable=var_dict[item])
+    item_checkbutton.pack()
+order_button = tk.Button(menu_frame, text="Place Order", command=place_order)
+order_label = tk.Label(menu_frame, text="")
+total_label = tk.Label(menu_frame, text="")
+back_button = tk.Button(menu_frame, text="Back", command=lambda: [menu_frame.pack_forget(), login_frame.pack()])
+menu_label.pack(pady=20)
+order_button.pack(pady=10)
+order_label.pack()
+total_label.pack()
+back_button.pack()
 
-# Create Order frame
-order_frame = tk.Frame(root)
+#Pack login frame
+login_frame.pack()
 
-# Add widgets to Order frame
-menu_label = tk.Label(order_frame, text="Menu", font=("Arial", 18))
-menu_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-quantity_label = tk.Label(order_frame, text="Quantity", font=("Arial", 18))
-quantity_label.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-listbox = tk.Listbox(order_frame, selectmode="multiple", font=("Arial", 16), height=5)
-for item in menu_items:
-    listbox.insert("end", item)
-listbox.grid(row=1, column=0, padx=10, pady=10)
-scrollbar = tk.Scrollbar(order_frame, orient="vertical")
-scrollbar.config(command=listbox.yview)
-scrollbar.grid(row=1, column=0, padx=(0, 10), pady=10, sticky="nse")
-quantities_frame = tk.Frame(order_frame)
-quantities_frame.grid(row=1, column=1, padx=10, pady=10)
-quantities = []
-for item in menu_items:
-    quantity = tk.StringVar()
-    quantity.set("0")
-    quantities.append(quantity)
-for i in range(len(menu_items)):
-    label = tk.Label(quantities_frame, text="${:.2f}".format(menu_items[listbox.get(i)]), font=("Arial", 16))
-    label.grid(row=i, column=0, padx=10, pady=10)
-    entry = tk.Entry(quantities_frame, textvariable=quantities[i], font=("Arial", 16), width=5)
-    entry.grid(row=i, column=1, padx=10, pady=10)
-order_button = tk.Button(order_frame, text="Order", font=("Arial", 16), command=handle_order)
-order_button.grid(row=2, column=0, columnspan=2, padx=10, pady=20)
-order_text = tk.Text(order_frame, font=("Arial", 16), state="disabled", width=40, height=10)
-order_text.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
-
-# Pack Intro frame
-intro_frame.grid(row=0, column=0, pady=50)
-
-# Run mainloop
 root.mainloop()
