@@ -6,7 +6,7 @@ from tkinter import *
 #Creating GUI Window
 root = Tk()
 root.title("Cafe Menu")
-root.geometry("500x500")
+root.geometry("200x200")
 
 #Creating Login Screen
 def login_screen():
@@ -28,6 +28,7 @@ def login_screen():
 
 #Creating Function to Check Login Credentials
 def login():
+    global username_entry, password_entry
     username = username_entry.get()
     password = password_entry.get()
 
@@ -46,9 +47,44 @@ def login():
             else:
                 Label(login_screen, text="Invalid login details!").pack()
 
+#Creating Function to Register New Users
+def register():
+    global username_entry, password_entry, age_entry
+    username = username_entry.get()
+    password = password_entry.get()
+    age = age_entry.get()
+
+    if username == "" or password == "" or age == "":
+        Label(register_screen, text="Please enter valid registration details").pack()
+    elif int(age) < 13 or int(age) > 18:
+        Label(register_screen, text="You are not eligible to use this app!").pack()
+    else:
+        with open("users.txt", "a") as f:
+            f.write(f"{username},{password}\n")
+        Label(register_screen, text="Registration Successful!").pack()
+        register_screen.destroy()
+
+#Creating Login Screen
+def login_screen():
+    global login_screen, username_entry
+    login_screen = Toplevel(root)
+    login_screen.title("Login")
+
+    # Creating Labels and Entries for Login Screen
+    Label(login_screen, text="Please enter login details below").pack()
+    Label(login_screen, text="").pack()
+    Label(login_screen, text="Username").pack()
+    username_entry = Entry(login_screen)
+    username_entry.pack()
+    Label(login_screen, text="Password").pack()
+    password_entry = Entry(login_screen, show="*")
+    password_entry.pack()
+    Label(login_screen, text="").pack()
+    Button(login_screen, text="Login", command=login).pack()
+
 #Creating Registration Screen
 def register_screen():
-    global register_screen
+    global register_screen, username_entry, password_entry, age_entry
     register_screen = Toplevel(root)
     register_screen.title("Register")
 
@@ -66,6 +102,7 @@ def register_screen():
     age_entry.pack()
     Label(register_screen, text="").pack()
     Button(register_screen, text="Register", command=register).pack()
+
 
 #Creating Function to Register New Users
 def register():
