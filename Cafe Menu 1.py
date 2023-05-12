@@ -11,14 +11,15 @@ if existing_user.lower() == 'y':
     password = input("Please enter your password: ")
     #TODO: Check username and password in index data
 else:
-    age = int(input("Please enter your age: "))
-    if age < 13 or age > 18:
-        print("Sorry, this app is only for students between the ages of 13 and 18.")
-        exit()
-    else:
-        username = input("Please enter a username: ")
-        password = input("Please enter a password: ")
-        #TODO: Save username and password in a list
+    while True:
+        age = int(input("Please enter your age: "))
+        if age < 13 or age > 18:
+            print("Sorry, this app is only for students between the ages of 13 and 18.")
+        else:
+            username = input("Please enter a username: ")
+            password = input("Please enter a password: ")
+            #TODO: Save username and password in a list
+            break
     
 #Display Cafe Menu
 print("Here's our menu:")
@@ -34,6 +35,9 @@ while True:
     item = input("Enter the item number you would like to order (press q to quit): ")
     if item.lower() == 'q':
         break
+    elif item not in ['1', '2', '3', '4', '5']:
+        print("Invalid item number. Please enter a number between 1 and 5.")
+        continue
     quantity = int(input("Enter the quantity: "))
     order.append((item, quantity))
     
