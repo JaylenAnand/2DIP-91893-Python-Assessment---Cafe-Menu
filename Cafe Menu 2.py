@@ -1,79 +1,78 @@
 #Version 2: Cafe Menu with Improved Functionality
 #20/04/23
 
-#Welcome to the Cafe Menu app
-print("Welcome to the Cafe Menu app")
+#Menu Data
+menu_data = {
+    "1": {"name": "Coffee", "price": 2.50},
+    "2": {"name": "Tea", "price": 1.50},
+    "3": {"name": "Sandwich", "price": 3.00},
+    "4": {"name": "Muffin", "price": 2.00},
+    "5": {"name": "Salad", "price": 4.50}
+}
 
-#List of existing users with usernames and passwords
-users = [("jane_doe", "password123"), ("john_smith", "qwerty456")]
+#Credentials Data
+credentials_data = {
+    "user1": "password1",
+    "user2": "password2",
+    "user3": "password3"
+}
 
-#Prompt user to log in or create an account
-user_choice = input("Do you want to log in or create an account? Type 'log in' or 'create': ")
+#Welcome Message
+print("Welcome to the Cafe Menu App!")
 
-#Prompt user to enter login details
-if user_choice == "log in":
-    while True:
+#User Login or Signup
+while True:
+    existing_user = input("Do you have an account with us? (y/n): ")
+    if existing_user.lower() == 'y':
         username = input("Please enter your username: ")
         password = input("Please enter your password: ")
-        #Check if username and password are correct
-        if (username, password) in users:
-            print("Login successful!")
+        if credentials_data.get(username) == password:
+            print("Login successful.")
             break
         else:
-            print("Incorrect username or password. Please try again.")
-
-#Prompt user to create a new account
-else:
-    while True:
+            print("Invalid username or password.")
+    else:
         age = int(input("Please enter your age: "))
-        #Check if user is within the age range
         if age < 13 or age > 18:
-            print("Sorry, this app is only for students aged 13-18. Please try again later.")
+            print("Sorry, this app is only for students between the ages of 13 and 18.")
         else:
-            #Prompt user to create a new username and password
-            username = input("Please enter a username: ")
-            password = input("Please enter a password: ")
-            #Add new user to the list of users
-            users.append((username, password))
-            print("Account created successfully!")
-            break
+            while True:
+                username = input("Please enter a username: ")
+                if username in credentials_data:
+                    print("Username already exists. Please choose a different username.")
+                else:
+                    password = input("Please enter a password: ")
+                    credentials_data[username] = password
+                    print("Account created successfully.")
+                    break
 
-#If the user has successfully logged in or created an account, display the menu and prices
-if user_choice == "log in" or age >= 13 and age <= 18:
-    #Café menu items and prices
-    menu_items = {"Coffee": 2.50, "Tea": 1.50, "Sandwich": 3.00, "Muffin": 2.00 ,"Salad": 4.00}
+#Display Cafe Menu
+print("Here's our menu:")
+for item_num, item_data in menu_data.items():
+    print(f"{item_num}. {item_data['name']} - ${item_data['price']:.2f}")
 
-    #Function to calculate order total
-    def calculate_total(order):
-        total = 0
-        for item in order:
-            total += menu_items[item] * order[item]
-        return total
+#Place Order
+order = [] #List to store the order items and quantities
+while True:
+    item = input("Enter the item number you would like to order (press q to quit): ")
+    if item.lower() == 'q':
+        break
+    elif item not in menu_data:
+        print("Invalid item number. Please enter a number between 1 and 5.")
+        continue
+    quantity = int(input("Enter the quantity: "))
+    if quantity <= 0:
+        print("Invalid quantity. Please enter a positive integer.")
+        continue
+    order.append((item, quantity))
 
-    #Function to print order details
-    def print_order(order, menu_items):
-        print("Order details:")
-        for item in order:
-            print(f"{item}: {order[item]} x ${menu_items[item]:.2f} = ${menu_items[item] * order[item]:.2f}")
-        print(f"Total: ${calculate_total(order):.2f}")
-
-    #Prompt user to place an order
-    print("Here is the café menu:")
-    for item in menu_items:
-        print(f"{item}: ${menu_items[item]:.2f}")
-    order = {}
-    while True:
-        item = input("What would you like to order? Type 'done' when finished: ")
-        if item == "done":
-            break
-        elif item not in menu_items:
-            print("Sorry, that item is not on the menu. Please try again.")
-        else:
-            quantity = int(input("How many would you like? "))
-            order[item] = quantity
-
-    #Print order details and thank user for using the app
-    print_order(order, menu_items)
-    print("Thank you for using the Café Menu app!")
-else:
-    print("Exiting the Café Menu app.") 
+#Generate Invoice
+print("Invoice:")
+total = 0
+for item, quantity in order:
+    item_data = menu_data[item]
+    item_name = item_data["name"]
+    item_price = item_data["price"]
+    print(f"{item_name} x {quantity} - ${quantity*item_price:.2f}")
+    total += quantity*item_price
+print(f"Total: ${total:.2f}")
