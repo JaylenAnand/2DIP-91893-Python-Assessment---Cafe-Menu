@@ -1,229 +1,137 @@
 #Version 4: GUI Cafe Menu with Improved Functionality
-#01/05/23
+#04/05/23
 
-from tkinter import *
+import tkinter as tk
 
-#Creating GUI Window
-root = Tk()
-root.title("Cafe Menu")
-root.geometry("200x200")
+#Define menu items and prices
+menu = {
+    "Coffee": 2.50,
+    "Tea": 1.50,
+    "Sandwich": 3.00,
+    "Muffin": 2.00,
+    "Salad": 4.00
+}
 
-#Creating Login Screen
-def login_screen():
-    global login_screen
-    login_screen = Toplevel(root)
-    login_screen.title("Login")
+#Define functions for login, account creation, and order placement
+def create_account():
+    username = create_username_entry.get()
+    password = create_password_entry.get()
+    age = create_age_entry.get()
+    
+    if username in users:
+        create_error_label.config(text="Username already exists")
+    elif not age.isnumeric():
+        create_error_label.config(text="Please enter a valid age")
+    elif int(age) > 18:
+        create_error_label.config(text="You are too old")
+    elif int(age) < 13:
+        create_error_label.config(text="You are too young")
+    else:
+        users[username] = {"password": password, "age": age}
+        create_success_label.config(text="Account created successfully")
+        create_account_frame.pack_forget()
+        login_frame.pack()
 
-    # Creating Labels and Entries for Login Screen
-    Label(login_screen, text="Please enter login details below").pack()
-    Label(login_screen, text="").pack()
-    Label(login_screen, text="Username").pack()
-    username_entry = Entry(login_screen)
-    username_entry.pack()
-    Label(login_screen, text="Password").pack()
-    password_entry = Entry(login_screen, show="*")
-    password_entry.pack()
-    Label(login_screen, text="").pack()
-    Button(login_screen, text="Login", command=login).pack()
-
-#Creating Function to Check Login Credentials
 def login():
-    global username_entry, password_entry
     username = username_entry.get()
     password = password_entry.get()
-
-    if username == "" or password == "":
-        Label(login_screen, text="Please enter valid login details").pack()
+    
+    if username not in users:
+        error_label.config(text="Username not found")
+    elif users[username]["password"] != password:
+        error_label.config(text="Incorrect password")
     else:
-        with open("users.txt", "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                login_info = line.strip().split(",")
-                if login_info[0] == username and login_info[1] == password:
-                    Label(login_screen, text="Login Successful!").pack()
-                    login_screen.destroy()
-                    menu_screen()
-                    break
-            else:
-                Label(login_screen, text="Invalid login details!").pack()
+        login_frame.pack_forget()
+        menu_frame.pack()
 
-#Creating Function to Register New Users
-def register():
-    global username_entry, password_entry, age_entry
-    username = username_entry.get()
-    password = password_entry.get()
-    age = age_entry.get()
-
-    if username == "" or password == "" or age == "":
-        Label(register_screen, text="Please enter valid registration details").pack()
-    elif int(age) < 13 or int(age) > 18:
-        Label(register_screen, text="You are not eligible to use this app!").pack()
+def place_order():
+    order = []
+    total = 0
+    
+    for item, price in menu.items():
+        if var_dict[item].get() > 0:
+            quantity = var_dict[item].get()
+            order.append(f"{item}: {quantity} x ${price:.2f}")
+            total += price * quantity
+    
+    if order:
+        order_label.config(text="\n".join(order))
+        total_label.config(text=f"Total: ${total:.2f}")
     else:
-        with open("users.txt", "a") as f:
-            f.write(f"{username},{password}\n")
-        Label(register_screen, text="Registration Successful!").pack()
-        register_screen.destroy()
+        error_label.config(text="Please select at least one item")
 
-#Creating Login Screen
-def login_screen():
-    global login_screen, username_entry
-    login_screen = Toplevel(root)
-    login_screen.title("Login")
+#Create root window
+root = tk.Tk()
+root.geometry("400x400")
+root.title("Café Menu App")
+root.configure(bg="#F7F3E9")
 
-    # Creating Labels and Entries for Login Screen
-    Label(login_screen, text="Please enter login details below").pack()
-    Label(login_screen, text="").pack()
-    Label(login_screen, text="Username").pack()
-    username_entry = Entry(login_screen)
-    username_entry.pack()
-    Label(login_screen, text="Password").pack()
-    password_entry = Entry(login_screen, show="*")
-    password_entry.pack()
-    Label(login_screen, text="").pack()
-    Button(login_screen, text="Login", command=login).pack()
+#Create intro and login frame
+users = {"user": {"password": "pass", "age": "25"}}
+login_frame = tk.Frame(root, bg="#F7F3E9")
+login_label = tk.Label(login_frame, text="Welcome to the Cafe Menu app!\nPlease log in to continue:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 14, "bold"))
+username_label = tk.Label(login_frame, text="Username:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+username_entry = tk.Entry(login_frame, font=("Arial", 12))
+password_label = tk.Label(login_frame, text="Password:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+password_entry = tk.Entry(login_frame, show="*", font=("Arial", 12))
+login_button = tk.Button(login_frame, text="Log In", command=login, bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+error_label = tk.Label(login_frame, text="", bg="#F7F3E9", fg="#FF0000", font=("Arial", 12, "bold"))
+create_account_button = tk.Button(login_frame, text="Create Account", command=lambda: [login_frame.pack_forget(), create_account_frame.pack()], bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+login_label.pack(pady=20)
+username_label.pack()
+username_entry.pack()
+password_label.pack()
+password_entry.pack()
+login_button.pack(pady=10)
+error_label.pack()
+create_account_button.pack(pady=10)
 
-#Creating Registration Screen
-def register_screen():
-    global register_screen, username_entry, password_entry, age_entry
-    register_screen = Toplevel(root)
-    register_screen.title("Register")
+#Create create account frame
+create_account_frame = tk.Frame(root, bg="#F7F3E9")
+create_username_label = tk.Label(create_account_frame, text="Username:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+create_username_entry = tk.Entry(create_account_frame, font=("Arial", 12))
+create_password_label = tk.Label(create_account_frame, text="Password:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+create_password_entry = tk.Entry(create_account_frame, show="*", font=("Arial", 12))
+create_age_label = tk.Label(create_account_frame, text="Age:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+create_age_entry = tk.Entry(create_account_frame, font=("Arial", 12))
+create_button = tk.Button(create_account_frame, text="Create Account", command=create_account, bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+create_error_label = tk.Label(create_account_frame, text="", bg="#F7F3E9", fg="#FF0000", font=("Arial", 12, "bold"))
+create_success_label = tk.Label(create_account_frame, text="", bg="#F7F3E9", fg="#008000", font=("Arial", 12, "bold"))
+create_username_label.pack()
+create_username_entry.pack()
+create_password_label.pack()
+create_password_entry.pack()
+create_age_label.pack()
+create_age_entry.pack()
+create_button.pack(pady=10)
+create_error_label.pack()
+create_success_label.pack()
+create_back_button = tk.Button(create_account_frame, text="Back", command=lambda: [create_account_frame.pack_forget(), login_frame.pack()], bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+create_back_button.pack()
 
-    #Creating Labels and Entries for Registration Screen
-    Label(register_screen, text="Please enter registration details below").pack()
-    Label(register_screen, text="").pack()
-    Label(register_screen, text="Username").pack()
-    username_entry = Entry(register_screen)
-    username_entry.pack()
-    Label(register_screen, text="Password").pack()
-    password_entry = Entry(register_screen, show="*")
-    password_entry.pack()
-    Label(register_screen, text="Age").pack()
-    age_entry = Entry(register_screen)
-    age_entry.pack()
-    Label(register_screen, text="").pack()
-    Button(register_screen, text="Register", command=register).pack()
+#Create menu frame
+var_dict = {}
+menu_frame = tk.Frame(root, bg="#F7F3E9")
+menu_label = tk.Label(menu_frame, text="Please select your items:", bg="#F7F3E9", fg="#605F5E", font=("Arial", 14, "bold"))
+menu_label.pack(pady=20)
+for item, price in menu.items():
+    var_dict[item] = tk.IntVar()
+    item_checkbutton = tk.Checkbutton(menu_frame, text=f"{item} (${price:.2f})", variable=var_dict[item], bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+    item_checkbutton.pack()
+    order_button = tk.Button(menu_frame, text="Place Order", command=place_order, bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+    order_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+    total_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+    back_button = tk.Button(menu_frame, text="Back", command=lambda: [menu_frame.pack_forget(), login_frame.pack()], bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+    order_button.pack(pady=10)
+    order_label.pack()  
+    total_label.pack()  
+    back_button.pack()
 
+#Pack login frame
+login_frame.pack()
 
-#Creating Function to Register New Users
-def register():
-    username = username_entry.get()
-    password = password_entry.get()
-    age = age_entry.get()
-
-    if username == "" or password == "" or age == "":
-        Label(register_screen, text="Please enter valid registration details").pack()
-    elif int(age) < 13 or int(age) > 18:
-        Label(register_screen, text="You are not eligible to use this app!").pack()
-    else:
-        with open("users.txt", "a") as f:
-            f.write(f"{username},{password}\n")
-        Label(register_screen, text="Registration Successful!").pack()
-        register_screen.destroy()
-
-#Creating Menu Screen
-def menu_screen():
-    global menu_screen
-    menu_screen = Toplevel(root)
-    menu_screen.title("Menu")
-
-    #Creating Labels and Entries for Menu Screen
-    Label(menu_screen, text="Please choose your order").pack()
-    Label(menu_screen, text="").pack()
-
-    #Creating Menu Items
-    menu_items = {
-        "Coffee": 2.50,
-        "Tea": 1.50,
-        "Sandwich": 3.00,
-        "Muffin": 2.00,
-        "Salad": 4.00
-    }
-
-    #Creating Checkboxes for Menu Items
-    var1 = IntVar()
-    var2 = IntVar()
-    var3 = IntVar()
-    var4 = IntVar()
-    var5 = IntVar()
-
-    Checkbutton(menu_screen, text="Coffee - $2.50", variable=var1).pack()
-    Checkbutton(menu_screen, text="Tea - $1.50", variable=var2).pack()
-    Checkbutton(menu_screen, text="Sandwich - $3.00", variable=var3).pack()
-    Checkbutton(menu_screen, text="Muffin - $2.00", variable=var4).pack()
-    Checkbutton(menu_screen, text="Salad - $4.00", variable=var5).pack()
-
-    #Creating Quantity Entry Fields for Menu Items
-    Label(menu_screen, text="").pack()
-    Label(menu_screen, text="Enter Quantity for Items Ordered").pack()
-    coffee_qty = Entry(menu_screen)
-    coffee_qty.pack()
-    tea_qty = Entry(menu_screen)
-    tea_qty.pack()
-    sandwich_qty = Entry(menu_screen)
-    sandwich_qty.pack()
-    burger_qty = Entry(menu_screen)
-    burger_qty.pack()
-    pizza_qty = Entry(menu_screen)
-    pizza_qty.pack()
-
-    #Creating Buttons for Menu Screen
-    Label(menu_screen, text="").pack()
-    Button(menu_screen, text="Place Order", command=place_order).pack()
-    Button(menu_screen, text="View Order History", command=view_orders).pack()
-
-    #Function to Place Order
-    def place_order():
-        items = ""
-        total = 0
-
-        #Checking if Menu Items are Selected and Adding to Items
-        if var1.get() == 1:
-            items += f"Coffee x {coffee_qty.get()}, "
-            total += 2.5 * int(coffee_qty.get())
-        if var2.get() == 1:
-            items += f"Tea x {tea_qty.get()}, "
-            total += 1.5 * int(tea_qty.get())
-        if var3.get() == 1:
-            items += f"Sandwich x {sandwich_qty.get()}, "
-            total += 3 * int(sandwich_qty.get())
-        if var4.get() == 1:
-            items += f"Muffin x {muffin_qty.get()}, "
-            total += 4 * int(muffin_qty.get())
-        if var5.get() == 1:
-            items += f"Salad x {salad_qty.get()}, "
-            total += 5.5 * int(salad_qty.get())
-
-        #Displaying Order Summary
-        order_summary = Toplevel(menu_screen)
-        order_summary.title("Order Summary")
-        Label(order_summary, text="Order Summary").pack()
-        Label(order_summary, text="").pack()
-        Label(order_summary, text=items).pack()
-        Label(order_summary, text=f"Total: ${total:.2f}").pack()
-
-        #Saving Order to Order History
-        with open("orders.txt", "a") as f:
-            f.write(f"{items},{total:.2f}\n")
-
-    #Function to View Order History
-    def view_orders():
-        order_history = Toplevel(menu_screen)
-        order_history.title("Order History")
-        Label(order_history, text="Order History").pack()
-        Label(order_history, text="").pack()
-
-        #Reading Order History from File and Displaying
-        with open("orders.txt", "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                order_info = line.strip().split(",")
-                Label(order_history, text=f"{order_info[0]} - ${order_info[1]}").pack()
-
-#Creating Buttons for Main Screen
-Label(root, text="Welcome to Cafe Menu").pack()
-Label(root, text="Please log in or register to continue").pack()
-Button(root, text="Log In", command=login_screen).pack()
-Button(root, text="Register", command=register_screen).pack()
-
-#Running the GUI Window
 root.mainloop()
+
+
+
+
