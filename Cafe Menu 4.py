@@ -17,10 +17,10 @@ def create_account():
     username = create_username_entry.get()
     password = create_password_entry.get()
     age = create_age_entry.get()
-    
+
     if username in users:
         create_error_label.config(text="Username already exists")
-    elif not age.isnumeric():
+    elif not age.isdigit():
         create_error_label.config(text="Please enter a valid age")
     elif int(age) > 18:
         create_error_label.config(text="You are too old")
@@ -35,7 +35,7 @@ def create_account():
 def login():
     username = username_entry.get()
     password = password_entry.get()
-    
+
     if username not in users:
         error_label.config(text="Username not found")
     elif users[username]["password"] != password:
@@ -47,13 +47,13 @@ def login():
 def place_order():
     order = []
     total = 0
-    
+
     for item, price in menu.items():
         if var_dict[item].get() > 0:
             quantity = var_dict[item].get()
             order.append(f"{item}: {quantity} x ${price:.2f}")
             total += price * quantity
-    
+
     if order:
         order_label.config(text="\n".join(order))
         total_label.config(text=f"Total: ${total:.2f}")
@@ -118,19 +118,20 @@ for item, price in menu.items():
     var_dict[item] = tk.IntVar()
     item_checkbutton = tk.Checkbutton(menu_frame, text=f"{item} (${price:.2f})", variable=var_dict[item], bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
     item_checkbutton.pack()
-    order_button = tk.Button(menu_frame, text="Place Order", command=place_order, bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
-    order_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
-    total_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
-    back_button = tk.Button(menu_frame, text="Back", command=lambda: [menu_frame.pack_forget(), login_frame.pack()], bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
-    order_button.pack(pady=10)
-    order_label.pack()  
-    total_label.pack()  
-    back_button.pack()
+order_button = tk.Button(menu_frame, text="Place Order", command=place_order, bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+order_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+total_label = tk.Label(menu_frame, text="", bg="#F7F3E9", fg="#605F5E", font=("Arial", 12))
+back_button = tk.Button(menu_frame, text="Back", command=lambda: [menu_frame.pack_forget(), login_frame.pack()], bg="#D8D0D1", fg="#605F5E", font=("Arial", 12, "bold"))
+order_button.pack(pady=10)
+order_label.pack()
+total_label.pack()
+back_button.pack()
 
 #Pack login frame
 login_frame.pack()
 
 root.mainloop()
+
 
 
 
