@@ -39,11 +39,14 @@ def create_account():
 def login():
     username = username_entry.get()
     password = password_entry.get()
-
     if username not in users:
-        error_label.config(text="Username not found")
+        #Display "Username not found" error message
+        username_error_label.config(text="Username not found")
+        password_error_label.config(text="")
     elif users[username]["password"] != password:
-        error_label.config(text="Incorrect password")
+        #Display "Password incorrect" error message
+        username_error_label.config(text="")
+        password_error_label.config(text="Password incorrect")
     else:
         login_frame.pack_forget()
         menu_frame.pack()
@@ -95,6 +98,11 @@ password_entry.pack()
 login_button.pack(pady=10)
 error_label.pack()
 create_account_button.pack(pady=10)
+username_error_label = tk.Label(login_frame, text="", bg="#F7F3E9", fg="#FF0000", font=("Arial", 12, "bold"))
+password_error_label = tk.Label(login_frame, text="", bg="#F7F3E9", fg="#FF0000", font=("Arial", 12, "bold"))
+username_error_label.pack()
+password_error_label.pack()
+
 
 #Create create account frame
 create_account_frame = tk.Frame(root, bg="#F7F3E9")
