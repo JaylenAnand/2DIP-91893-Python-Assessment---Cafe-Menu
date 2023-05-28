@@ -131,8 +131,3 @@ back_button.pack()
 login_frame.pack()
 
 root.mainloop()
-
-
-
-
-
