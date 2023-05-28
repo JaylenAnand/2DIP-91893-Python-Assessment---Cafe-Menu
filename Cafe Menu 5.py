@@ -170,5 +170,3 @@ back_button.pack(pady=10)
 login_frame.pack()
 
 root.mainloop()
-
-
