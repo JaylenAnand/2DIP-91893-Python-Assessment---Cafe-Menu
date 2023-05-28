@@ -85,4 +85,3 @@ for item, quantity in order:
     print(f"{item_name} x {quantity} - ${quantity*item_price:.2f}")
     total += quantity*item_price
 print(f"Total: ${total:.2f}")
-
